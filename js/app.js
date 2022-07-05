@@ -8,6 +8,14 @@ cargarEventListener();
 function cargarEventListener() {
     coursesList.addEventListener('click', addCourse);
 
+    shoppingCart.addEventListener('click', deleteCourse);
+
+    emptyCartBtn.addEventListener('click', () => {
+        console.log('Vaciando Carrito');
+        articleShoppingCart = [];
+        clearShoppingCartHTML();
+    })
+
 };
 
 function addCourse(data) {
@@ -29,14 +37,25 @@ function leerDatosCursos(course) {
         cantidad: 1
     }
 
-    articleShoppingCart = [...articleShoppingCart, courseInfo]
-
+    const exist = articleShoppingCart.some(course => course.id === courseInfo.id);
+    if (exist) {
+        const courses = articleShoppingCart.map(course => {
+            if (course.id === courseInfo.id) {
+                course.cantidad++;
+                return course;
+            } else {
+                return course;
+            }
+        });
+        articleShoppingCart = [...courses];
+    } else {
+        articleShoppingCart = [...articleShoppingCart, courseInfo]
+    }
 
     console.log(articleShoppingCart);
 
     addShoppingCartHTML();
 
-   
 }
 
 function addShoppingCartHTML() {
@@ -44,7 +63,7 @@ function addShoppingCartHTML() {
     clearShoppingCartHTML();
 
     articleShoppingCart.forEach(course => {
-        const { img, titulo, precio, cantidad } = course;
+        const { img, titulo, precio, cantidad, id } = course;
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>
@@ -58,15 +77,29 @@ function addShoppingCartHTML() {
                 </td>
                 <td>
                     ${cantidad}
-                </td>`;
+                </td>
+                <td>
+                <a href="#" class="borrar-curso" data-id=${id}> X </a>
+                </td>`
 
         cartContainer.appendChild(row);
     })
-
 
 }
 
 function clearShoppingCartHTML() {
 
     cartContainer.innerHTML = '';
+}
+
+function deleteCourse(e) {
+
+    if (e.target.classList.contains('borrar-curso')) {
+
+        const courseID = e.target.getAttribute('data-id');
+
+        articleShoppingCart = articleShoppingCart.filter(course => course.id !== courseID);
+        addShoppingCartHTML();
+    }
+
 }
